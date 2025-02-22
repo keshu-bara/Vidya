@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'learning_logs/css/base.css' %}" rel="stylesheet">
+
+    <title>Vidya</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'learning_logs/js/scripts.js' %}"></script>
+    
+</head>
+<body>
+<header class="bg-[#ef4444] text-white p-2 shadow-md flex justify-between items-center fixed w-full top-0 z-50">
+    <h3 class="text-xl font-bold flex items-center">
+        <i class="fas fa-pen mr-2"></i> Vidya
+    </h3>
+    <nav>
+        <ul class="flex space-x-4">
+            <li><a href="{% url 'learning_logs:index' %}" class="hover:text-amber-200 transition-colors text-white">Home</a></li>
+            <li><a href="{% url 'learning_logs:topics' %}" class="hover:text-amber-200 transition-colors text-white">Topics</a></li>
+            <li><a href="{% url 'learning_logs:newTopics' %}" class="hover:text-amber-200 transition-colors text-white">Add Topic</a></li>
+        </ul>
+    </nav>
+    <style>
+        header {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            background-color: #3498db;
+            padding: 1rem;
+        }
+        header:hover {
+            background-color: #d33a3a;
+            transform: translateY(-2px);
+        }
+        nav ul {
+            display: flex;
+            gap: 0.5rem;
+        }
+        nav a {
+            padding: 6px 8px;
+            border-radius: 4px;
+        }
+        nav a:hover {
+            background-color: #f0faff;
+            color: #3498db;
+        }
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            nav a {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+    <!-- Add Font Awesome CDN for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</header>
+
+    
+    <div class="flex mt-16 relative">
+        {% if user.is_authenticated %}
+<aside id="sidebar" class="w-64 sidebar">
+    <div class="sidebar-header flex justify-between items-center">
+        <span>&nbsp; &nbsp; &nbsp; &nbsp; MY LEARNING TOPICS</span>
+    </div>
+    <div class="sidebar-content">
+        <ul class="topic-list">
+            {% for t in topics %}
+            <li class="topic-container">
+                <div class="topic-item flex items-center justify-between" data-topic-id="{{ t.id }}">
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right mr-2 transform transition-transform"></i>
+                        <i class="fas fa-book mr-2 text-blue-500"></i>
+                        <span>{{ t }}</span>
+                    </div>
+                    <div class="flex">
+                        <a href="{% url 'learning_logs:newEntry' t.id %}" class="action-icon px-1" title="Add entry">
+                            <i class="fas fa-plus-circle"></i>
+                        </a>
+                        <a href="{% url 'learning_logs:deleteTopic' t.id %}" class="action-icon delete px-1" title="Delete topic">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </div>
+                <ul class="entry-list" id="topic-entries-{{ t.id }}">
+                    {% for entry in t.entry_set.all %}
+                    <li class="entry-item">
+                        <div class="flex items-center justify-between w-full">
+                            <a href="{% url 'learning_logs:topic' t.id %}" class="flex items-center text-gray-600 hover:text-blue-500 transition-colors">
+                                <i class="fas fa-file-alt mr-2"></i>
+                                <span class="truncate">{{ entry.text|slice:":30" }}</span>
+                            </a>
+                            <a href="{% url 'learning_logs:deletEntry' entry.id %}" class="action-icon delete" title="Delete entry">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="entry-item text-gray-500">
+                        <span class="italic">No entries yet</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% empty %}
+            <li class="p-3 text-gray-500">
+                <p class="italic">No topics added yet</p>
+                <a href="{% url 'learning_logs:newTopics' %}" class="mt-2 inline-block text-blue-500 hover:text-blue-600">
+                    <i class="fas fa-plus-circle mr-1"></i> Add your first topic
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</aside>
+
+<button id="toggle-sidebar" class="toggle-button">
+    <i class="fas fa-bars"></i>
+</button>
+
+        {% endif %}
+
+
+        <main id="main-content" class="p-6 w-full bg-white main-content {% if user.is_authenticated %}sidebar-open{% endif %}" style="min-height: calc(100vh - 10rem); margin-bottom: 3rem;">
+            <div class="max-w-4xl mx-auto">
+                {% if user.is_authenticated %}
+                <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200 flex justify-between items-center">
+                    <p class="text-blue-800">
+                        <span class="font-bold">Hello, {{ user.username }}!</span> What are you learning today?
+                    </p>
+                    <a href="{% url 'users:logout' %}" class="text-blue-600 hover:text-blue-800 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+                {% else %}
+                <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <p class="text-blue-800">
+                        <a href="{% url 'users:login' %}" class="font-bold text-blue-600 hover:text-blue-800 transition-colors">Log in</a>
+                        or
+                        <a href="{% url 'users:register' %}" class="font-bold text-blue-600 hover:text-blue-800 transition-colors">Register</a>
+                        to start tracking your learning journey!
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% block content %}
+                {% endblock content %}
+    
+                
+            </div>
+        </main>
+    </div>
+
+<footer class="bg-blue-300 text-white text-center p-2 w-full fixed bottom-0 z-10">
+<div class="container mx-auto flex justify-between items-center">
+    <p class="text-left">&copy; 2025 Vidya - Track your learning journey | Barawal Production House</p>
+    <a href="https://www.linkedin.com/in/keshav-kumar-49b171294?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><p class="text-right">Contact Developer</p></a>
+</div>
+
+    <style>
+        .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+p {
+    margin: 0;
+}
+
+        footer {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        footer:hover {
+            background-color: #d33a3a;
+            transform: translateY(-2px);
+        }
+        .container {
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .container p {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+</footer>
+
+
+    <script>
+        $(document).ready(function() {
+            // Simplified sidebar toggle
+            $('#toggle-sidebar').on('click', function() {
+                $('#sidebar').toggleClass('sidebar-collapsed');
+                $('#main-content').toggleClass('sidebar-open');
+                
+                // Change icon based on state
+                if ($('#sidebar').hasClass('sidebar-collapsed')) {
+                    $(this).html('<i class="fas fa-chevron-right"></i>');
+                } else {
+                    $(this).html('<i class="fas fa-bars"></i>');
+                }
+            });
+            
+            // Topic expanding
+            $('.topic-item').on('click', function(e) {
+                // Don't expand if clicking on action buttons
+                if ($(e.target).closest('a').length > 0) {
+                    return;
+                }
+                
+                const topicId = $(this).data('topic-id');
+                const entriesList = $(`#topic-entries-${topicId}`);
+                const chevron = $(this).find('.fa-chevron-right');
+                
+                entriesList.toggleClass('open');
+                chevron.toggleClass('rotate-90');
+                $(this).toggleClass('active');
+            });
+            
+            // Apply smooth hover effects to entries
+            $('.entry-item, .topic-item').hover(
+                function() { $(this).addClass('shadow-sm'); },
+                function() { $(this).removeClass('shadow-sm'); }
+            );
+            
+            // Add confirmation for delete actions
+            $('a[href*="delete"]').on('click', function(e) {
+                if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) {
+                    e.preventDefault();
+                }
+            });
+            
+            // Auto-expand topic if viewing related entries
+            {% if topic_id %}
+            const currentTopicItem = $(`.topic-item[data-topic-id="{{ topic_id }}"]`);
+            if (currentTopicItem.length > 0) {
+                currentTopicItem.click();
+                currentTopicItem.addClass('bg-blue-100');
+            }
+            {% endif %}
+            
+            // Check if sidebar should be collapsed on mobile by default
+            if (window.innerWidth < 768) {
+                $('#toggle-sidebar').click();
+            }
+        });
+    </script>
+</body>
+</html>

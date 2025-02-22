@@ -1,0 +1,41 @@
+{% extends "learning_logs/base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Add a New Topic</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <p class="text-gray-600 mb-6">Create a new topic to organize your learning journal entries.</p>
+        
+        <form action="{% url 'learning_logs:newTopics' %}" method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="space-y-2">
+                <label for="id_text" class="block text-sm font-medium text-gray-700">Topic Name:</label>
+                <input type="text" name="text" id="id_text" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Python, Machine Learning, Spanish...">
+                {% if form.text.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.text.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'learning_logs:topics' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Save Topic
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="bg-blue-50 p-4 rounded-lg mt-8 border border-blue-100">
+        <h3 class="font-medium text-blue-800 flex items-center">
+            <i class="fas fa-lightbulb mr-2 text-blue-600"></i>Tip
+        </h3>
+        <p class="text-blue-700 mt-1">
+            Choose specific topics that you can easily add entries to. For example, instead of "Programming," consider "Python" or "JavaScript" as separate topics.
+        </p>
+    </div>
+</div>
+{% endblock content %}
