@@ -3,6 +3,11 @@
 **Vidya** is a powerful and user-friendly web application designed for learners to document and track their learning journey in a structured, topic-wise manner. Whether you're studying for exams, learning a new skill, or exploring a subject of interest, Vidya lets you record your progress, take detailed notes, and access your learning anytime, anywhere. 
 
 The platform also allows users to register, login, and manage their personal learning data, ensuring each user’s progress is private and secure.
+## Sneek picks
+
+<img src ="./SS1.png" />
+<img src ="./SS2.png" />
+<img src ="./SS3.png" />
 
 ## Key Features
 
